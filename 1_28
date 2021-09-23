@@ -1,0 +1,177 @@
+using System;
+
+namespace FKN_28
+{
+    public class Program
+    {
+        //Функция возвращает новую рандомную матрицу
+        public static int[,] CreateRandomMatrix(int size)
+        {
+            int[,] matr = new int[size, size];
+            //Для рандомных чисел нужно создать объект
+            Random random = new Random();
+            for (int i = 0; i < size; ++i)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    //Next возвращает следующее число типа инт, в скобах пишется ограничение сверху
+                    matr[i, j] = random.Next(10);
+                }
+            }
+            return matr;
+        }
+
+        public static void PrintMatrix(int[,] matr)
+        {
+            /*
+             * Метод возвращает индекс последнего элемента в размерности
+             * 0 - первая размерность(количество строк)
+             * 1 - вторая размерность(количество столбцов)
+            */
+            int rows = matr.GetUpperBound(0) + 1;
+            int cols = matr.GetUpperBound(1) + 1;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    /*
+                     * $ указывает на то, что в строку в {} будут встроены переменные
+                     */
+                    Console.Write($"{matr[i, j]} ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        public static int[] CreateNewVector(int[,] matr, int K, int L)
+        {
+            int N = matr.GetUpperBound(0) + 1;
+            int[] vector = new int[2 * N];
+            for (int i = 0; i < vector.Length; i++)
+            {
+                //Деление на 2 для того, чтобы на пару четное/нечетное приходилась одна пара чисел
+                if (i % 2 != 0)
+                {
+                    vector[i] = matr[i / 2, K] - matr[L, i / 2];
+                }
+                else
+                {
+                    vector[i] = matr[L, i / 2] + matr[i / 2, K];
+                }
+            }
+
+            return vector;
+        }
+
+        public static void PrintVector(int[] vec)
+        {
+            foreach (var x in vec)
+            {
+                Console.Write($"{x} ");
+            }
+        }
+        public static int FindMaxCol(int[,] matr)
+        {
+            int maxMult = 1;
+            int maxIndex = 0;
+            int tmpMult;
+            int rows = matr.GetUpperBound(0) + 1;
+            int cols = matr.GetUpperBound(1) + 1;
+            for (int i = 0; i < rows; i++)
+            {
+                maxMult *= matr[i, 0];
+            }
+            for (int i = 1; i < cols; i++)
+            {
+                tmpMult = 1;
+                for (int j = 0; j < rows; j++)
+                {
+                    tmpMult *= matr[j, i];
+                }
+
+                if (tmpMult > maxMult)
+                {
+                    maxMult = tmpMult;
+                    maxIndex = i;
+                }
+                
+            }
+            return maxIndex;
+        }
+        public static int FindMaxRow(int[,] matr)
+        {
+            int maxMult = 1;
+            int maxIndex = 0;
+            int tmpMult;
+            int rows = matr.GetUpperBound(0) + 1;
+            int cols = matr.GetUpperBound(1) + 1;
+            for (int i = 0; i < cols; i++)
+            {
+                maxMult *= matr[0, i];
+            }
+            for (int i = 1; i < rows; i++)
+            {
+                tmpMult = 1;
+                for (int j = 0; j < cols; j++)
+                {
+                    tmpMult *= matr[i, j];
+                }
+
+                if (tmpMult > maxMult)
+                {
+                    maxMult = tmpMult;
+                    maxIndex = i;
+                }
+                
+            }
+            return maxIndex;
+        }
+
+        public static int[,] ReadMatrix(int size)
+        {
+            int[,] matr = new int[size, size];
+            
+            int count = 0;
+            //Проверка на полное заполнение матрицы
+            while(count < size * size)
+            {
+                //Чтение всей строки консоли
+                //var - автоматическое присваивание типа при компиляции
+                var input = Console.ReadLine();
+                //Разделение строки на массив строк в местах, где стоит пробел (можно указать любой символ)
+                var numbers = input.Split(' ');
+                foreach (var n in numbers)
+                {
+                                                       //Статический класс Convert превращает то, что мы подаём в выбранный тип
+                                                       //Int32 это стандартный тип int в C#
+                    matr[count / size, count % size] = Convert.ToInt32(n);
+                    ++count;
+                }
+            }
+
+                return matr;
+        }
+        public static void Main(string[] args)
+        {
+            int N;
+            int[,] matr;
+            Console.Write("Введите размер матрицы: ");
+            N = Convert.ToInt32(Console.ReadLine());
+            //matr = CreateRandomMatrix(N);
+            matr = ReadMatrix(N);
+            PrintMatrix(matr);
+            
+            int K = FindMaxCol(matr);
+            Console.WriteLine($"Столбец с максимальным произведением: {K + 1}");
+            
+            int L = FindMaxRow(matr);
+            Console.WriteLine($"Строка с максимальным произведением: {L + 1}");
+            
+            int[] B = CreateNewVector(matr, K, L);
+            PrintVector(B);
+
+            
+        }
+    }
+}
